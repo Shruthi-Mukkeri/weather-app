@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { WeatherData } from "./types";
 import "./App.css";
+import Map from "./Components/Map";
 
 function App() {
   const APIKey = "ed898e30a23a33e9ddc74eb97c5703a1";
@@ -45,6 +46,7 @@ function App() {
       ) : (
         <p>No weather data available</p>
       )}
+      <Map></Map>
     </div>
   );
 }
