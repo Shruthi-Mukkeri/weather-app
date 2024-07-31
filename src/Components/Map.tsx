@@ -1,69 +1,74 @@
-// import { useRef, useEffect } from "react";
-// import L from "leaflet";
-// import "leaflet/dist/leaflet.css";
-
-// const Map = () => {
-//   // Define the ref type to be either L.Map or null
-//   const mapRef = useRef<L.Map | null>(null);
-
-//   useEffect(() => {
-//     // Initialize map if it hasn't been already
-//     if (mapRef.current === null) {
-//       mapRef.current = L.map("map", {
-//         center: [51.505, -0.09],
-//         zoom: 13,
-//       });
-
-//       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-//         attribution: "&copy; OpenStreetMap contributors",
-//       }).addTo(mapRef.current);
-//     }
-
-//     // Clean up function to remove map and listeners
-//     return () => {
-//       if (mapRef.current !== null) {
-//         mapRef.current.remove();
-//       }
-//     };
-//   }, []);
-
-//   return <div id="map" style={{ height: "400px", width: "700px" }}></div>;
-// };
-
-// export default Map;
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import L, { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-const Map: React.FC = () => {
+interface MapProps {
+  onMapClick: (lat: number, lng: number) => void;
+}
+
+const Map: React.FC<MapProps> = ({ onMapClick }) => {
   const mapRef = useRef<LeafletMap | null>(null);
+  const [lat, setLat] = useState(17.4254);
+  const [lng, setLng] = useState(78.4505);
 
   useEffect(() => {
-    // Initialize the map if it hasn't been initialized yet
     if (mapRef.current === null) {
-      mapRef.current = L.map("map").setView([51.505, -0.09], 13);
+      mapRef.current = L.map("map").setView([lat, lng], 13);
 
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(mapRef.current);
 
-      L.marker([51.5, -0.09])
-        .addTo(mapRef.current)
-        .bindPopup("A pretty CSS popup.<br> Easily customizable.")
-        .openPopup();
+      mapRef.current.on("click", async function (e) {
+        const { lat, lng } = e.latlng;
+        console.log(`Latitude: ${lat}, Longitude: ${lng}`);
+
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+          );
+          const data = await response.json();
+          const placeName = data.display_name || "Unknown location";
+
+          L.marker([lat, lng])
+            .addTo(mapRef.current!)
+            .bindPopup(`You clicked at ${lat}, ${lng}<br>${placeName}`)
+            .openPopup();
+
+          onMapClick(lat, lng);
+        } catch (error) {
+          console.error("Error fetching place name:", error);
+
+          L.marker([lat, lng])
+            .addTo(mapRef.current!)
+            .bindPopup(`You clicked at ${lat}, ${lng}<br>Unknown location`)
+            .openPopup();
+
+          onMapClick(lat, lng);
+        }
+
+        // Update state with the clicked location
+        setLat(lat);
+        setLng(lng);
+
+        // Set the map view to the clicked location
+        mapRef.current!.setView([lat, lng], 13);
+      });
+    } else {
+      // Update the map view when lat or lng state changes
+      mapRef.current.setView([lat, lng], 13);
     }
 
-    // Cleanup function to remove the map when the component is unmounted
     return () => {
       if (mapRef.current !== null) {
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, []);
+  }, [lat, lng, onMapClick]);
 
-  return <div id="map" style={{ height: "400px", width: "100%" }}></div>;
+  return <div id="map" style={{ height: "500px", width: "100%" }}></div>;
 };
 
 export default Map;
