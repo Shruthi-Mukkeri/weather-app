@@ -9,9 +9,11 @@ function App() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [coords, setCoords] = useState<{ lat: number; lng: number }>({
-    lat: 17.368497196789402,
-    lng: 78.48538398742677,
+  const [coords, setCoords] = useState<{ lat: number; lng: number }>(() => {
+    return {
+      lat: 17.368497196789402,
+      lng: 78.48538398742677,
+    };
   });
 
   useEffect(() => {
@@ -43,25 +45,53 @@ function App() {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="container">
-      <div className="row vh-100">
-        <div className="col-md-8 m-auto ">
-          <div className="row justify-content-center align-item-center  border">
-            <div className="col-md-4 m-auto ">
-              {weather ? (
-                <div>
-                  <h1>Weather in {weather.name}</h1>
-                  <p>Temperature: {weather.main.temp}K</p>
-                  <p>Weather: {weather.weather[0]?.description}</p>
-                  <p>Wind Speed: {weather.wind.speed} m/s</p>
-                  <p>Visibility: {weather.visibility} meters</p>
+    <div style={{ boxShadow: " inset 0px 1px 73px -5px rgba(0,0,0,0.5" }}>
+      <div className="container">
+        <div className="row vh-100">
+          <div className="col-md-9 m-auto ">
+            <div className="row justify-content-center align-item-center shadow border">
+              <div className="col-md-5 m-auto ">
+                <div className="p-2">
+                  {" "}
+                  {weather ? (
+                    <div className="">
+                      <h1>
+                        Weather in{" "}
+                        <span className="fw-bold text-info">
+                          {weather.name}
+                        </span>
+                      </h1>
+                      <p>
+                        Temperature:{" "}
+                        <span className="fw-bold">{weather.main.temp}K</span>
+                      </p>
+                      <p>
+                        Weather:{" "}
+                        <span className="fw-bold">
+                          {weather.weather[0]?.description}
+                        </span>
+                      </p>
+                      <p>
+                        Wind Speed:{" "}
+                        <span className="fw-bold">
+                          {weather.wind.speed} m/s
+                        </span>
+                      </p>
+                      <p>
+                        Visibility:{" "}
+                        <span className="fw-bold">
+                          {weather.visibility} meters
+                        </span>
+                      </p>
+                    </div>
+                  ) : (
+                    <p>No weather data available</p>
+                  )}
                 </div>
-              ) : (
-                <p>No weather data available</p>
-              )}
-            </div>
-            <div className="col-md-8 m-auto">
-              <Map onMapClick={handleMapClick} />
+              </div>
+              <div className="col-md-7 m-auto p-0">
+                <Map onMapClick={handleMapClick} />
+              </div>
             </div>
           </div>
         </div>

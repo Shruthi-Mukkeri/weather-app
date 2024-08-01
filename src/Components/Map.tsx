@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import L, { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -8,12 +8,10 @@ interface MapProps {
 
 const Map: React.FC<MapProps> = ({ onMapClick }) => {
   const mapRef = useRef<LeafletMap | null>(null);
-  const [lat, setLat] = useState(17.4254);
-  const [lng, setLng] = useState(78.4505);
 
   useEffect(() => {
     if (mapRef.current === null) {
-      mapRef.current = L.map("map").setView([lat, lng], 13);
+      mapRef.current = L.map("map").setView([17.4254, 78.4505], 13);
 
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:
@@ -47,17 +45,7 @@ const Map: React.FC<MapProps> = ({ onMapClick }) => {
 
           onMapClick(lat, lng);
         }
-
-        // Update state with the clicked location
-        setLat(lat);
-        setLng(lng);
-
-        // Set the map view to the clicked location
-        mapRef.current!.setView([lat, lng], 13);
       });
-    } else {
-      // Update the map view when lat or lng state changes
-      mapRef.current.setView([lat, lng], 13);
     }
 
     return () => {
@@ -66,9 +54,27 @@ const Map: React.FC<MapProps> = ({ onMapClick }) => {
         mapRef.current = null;
       }
     };
-  }, [lat, lng, onMapClick]);
+  }, [onMapClick]);
 
-  return <div id="map" style={{ height: "500px", width: "100%" }}></div>;
+  useEffect(() => {
+    if (mapRef.current !== null) {
+      // If mapRef.current is not null, it means the map has been initialized, and we can set the view.
+      const { lat, lng } = mapRef.current.getCenter();
+      if (lat !== 17.4254 || lng !== 78.4505) {
+        mapRef.current.setView([lat, lng], 13);
+      }
+    }
+  }, []);
+
+  return (
+    <div
+      onClick={(e) => {
+        console.log(e.target);
+      }}
+      id="map"
+      style={{ height: "500px", width: "100%" }}
+    ></div>
+  );
 };
 
 export default Map;
