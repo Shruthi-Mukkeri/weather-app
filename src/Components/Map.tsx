@@ -20,7 +20,6 @@ const Map: React.FC<MapProps> = ({ onMapClick }) => {
 
       mapRef.current.on("click", async function (e) {
         const { lat, lng } = e.latlng;
-        console.log(`Latitude: ${lat}, Longitude: ${lng}`);
 
         try {
           const response = await fetch(
@@ -66,15 +65,7 @@ const Map: React.FC<MapProps> = ({ onMapClick }) => {
     }
   }, []);
 
-  return (
-    <div
-      onClick={(e) => {
-        console.log(e.target);
-      }}
-      id="map"
-      style={{ height: "500px", width: "100%" }}
-    ></div>
-  );
+  return <div id="map" style={{ height: "500px", width: "100%" }}></div>;
 };
 
 export default Map;

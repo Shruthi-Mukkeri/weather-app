@@ -1,4 +1,3 @@
-// src/App.tsx
 import { useState, useEffect } from "react";
 import { WeatherData } from "./types";
 import "./App.css";
